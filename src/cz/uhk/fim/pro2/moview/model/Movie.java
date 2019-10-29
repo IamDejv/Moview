@@ -20,8 +20,9 @@ public class Movie {
     private List<Rating> ratings;
     private Image poster;
     private MovieType type;
+    private String movieID;
 
-    public Movie(String title, int year, Date releaseDate, int runtime, List<Genre> genreList, String director, String writer, String plot, String country, String language, List<Actor> actors, List<Rating> ratings, Image poster, MovieType type) {
+    public Movie( String movieID, String title, int year, Date releaseDate, int runtime, List<Genre> genreList, String director, String writer, List<Actor> actors, String plot, String country, String language, Image poster, List<Rating> ratings, MovieType type) {
         this.title = title;
         this.year = year;
         this.releaseDate = releaseDate;
@@ -36,6 +37,19 @@ public class Movie {
         this.ratings = ratings;
         this.poster = poster;
         this.type = type;
+        this.movieID = movieID;
+    }
+
+    public Movie(){
+
+    }
+
+    public String getMovieID() {
+        return movieID;
+    }
+
+    public void setMovieID(String movieID) {
+        this.movieID = movieID;
     }
 
     public String getTitle() {

@@ -1,7 +1,5 @@
 package cz.uhk.fim.pro2.moview.utils;
 
-import sun.java2d.pipe.SpanShapeRenderer;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,7 +9,7 @@ public class DataHandler {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH);
 
-    public static Date getDateFromString(String date){
+    public static Date getDateFromString(String date) {
         Date parseDate = null;
         try {
             parseDate = sdf.parse(date);
@@ -21,7 +19,7 @@ public class DataHandler {
         return parseDate;
     }
 
-    public static String getStringFromDate (Date date){
+    public static String getStringFromDate(Date date) {
         return sdf.format(date);
     }
 

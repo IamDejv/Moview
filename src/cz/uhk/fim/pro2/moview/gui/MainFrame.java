@@ -2,7 +2,9 @@ package cz.uhk.fim.pro2.moview.gui;
 
 import cz.uhk.fim.pro2.moview.model.*;
 import cz.uhk.fim.pro2.moview.utils.DataHandler;
+import cz.uhk.fim.pro2.moview.utils.HttpHandler;
 import cz.uhk.fim.pro2.moview.utils.ImageHandeler;
+import cz.uhk.fim.pro2.moview.utils.MovieParser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +15,8 @@ import java.util.List;
 public class MainFrame extends JFrame {
 
     public MainFrame() throws HeadlessException {
+        initFrame();
+        initTestData();
     }
 
     private void initFrame () {
@@ -26,6 +30,18 @@ public class MainFrame extends JFrame {
     }
 
     private void initTestData(){
+
+        //HttpHandler.searchForMovies("star wars");
+        boolean notCallAgain = true;
+        for (Movie m : MovieParser.parseMovieSearch("star+wars")){
+            if(notCallAgain){
+                MovieParser.parseMovieDetail(m.getMovieID());
+            }
+            System.out.println(m);
+        }
+        notCallAgain = false;
+
+
         List<Rating> ratings = new ArrayList<>(3);
         ratings.add(new Rating("Internet", "8,6/10"));
         ratings.add(new Rating("Web", "93%"));
@@ -43,18 +59,20 @@ public class MainFrame extends JFrame {
         actors.add(new Actor("Carrie Fisher"));
 
         Movie movie = new Movie(
-                "Star Wars",
-                1977, DataHandler.getDateFromString("22 May 1977"),
+                "sd456",
+                "Star Wars - ep. 4",
+                1977,
+                DataHandler.getDateFromString("25 May 1977"),
                 121,
                 genres,
-                "Georgfe lucas",
-                "Geoired Lucas",
+                "George Lucas",
+                "George Lucas",
+                actors,
                 "...",
                 "USA",
-                "ENglisg",
-                actors,
+                "English",
+                ImageHandeler.getImageFromUrl("https://images-na.ssl-images-amazon.com/images/I/81WjGytz7HL._SY445_.jpg"),
                 ratings,
-                ImageHandeler.getImageFromUrl("http://cronicadexalapa.com/wp-content/uploads/2019/08/the-rise-of-skywaker-d23-poster_ec214fd3.jpg"),
                 MovieType.MOVIE
         );
         System.out.println(movie);

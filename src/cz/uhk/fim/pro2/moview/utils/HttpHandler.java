@@ -1,0 +1,51 @@
+package cz.uhk.fim.pro2.moview.utils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class HttpHandler {
+    private static final String API_KEY = "4188fcac";
+    private static final String API_URL = String.format("http://www.omdbapi.com/?apikey=%s", API_KEY);
+
+    private static String getHttpResult(String resourceUrl) {
+        String result = "";
+
+        try {
+            URL url = new URL(resourceUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            try(BufferedReader in =  new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                StringBuilder response = new StringBuilder();
+                String line;
+
+                while((line = in.readLine()) != null) {
+                    response.append(line);
+                }
+                result = response.toString();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static String searchForMovies(String query) {
+        String url = String.format("%s&s=%s", API_URL, query).replaceAll(" ", "+");
+        String jsonResponse = getHttpResult(url);
+        System.out.println(jsonResponse);
+        return jsonResponse;
+    }
+
+    public static String getDetailByID(String id) {
+        String url = String.format("%s&i=%s", API_URL, id);
+        String jsonResponse = getHttpResult(url);
+        System.out.println(jsonResponse);
+        return jsonResponse;
+    }
+}
