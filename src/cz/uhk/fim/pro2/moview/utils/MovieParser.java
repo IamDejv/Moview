@@ -47,19 +47,22 @@ public class MovieParser {
         JSONObject rootObject = new JSONObject(jsonResponse);
         System.out.println(rootObject);
 
+        String movieID = rootObject.getString("imdbID");
+
+
         String title = rootObject.getString("Title");
 
         int year = Integer.parseInt(rootObject.getString("Year"));
 
         Date releaseDate = DataHandler.getDateFromString(rootObject.getString("Released"));
 
+        int runtime = Integer.parseInt(rootObject.getString("Runtime").replace(" min", ""));
+
         List<Genre> genres = new ArrayList<>();
         String[] genreArray = rootObject.getString("Genre").split(",");
         for(String s : genreArray){
             genres.add(new Genre(s));
         }
-
-        int runtime = Integer.parseInt(rootObject.getString("Runtime").replace(" min", ""));
 
         String director = rootObject.getString("Director");
 
@@ -83,12 +86,10 @@ public class MovieParser {
         JSONArray ratingArray = rootObject.getJSONArray("Ratings");
         for (int i = 0; i  < ratingArray.length(); i++){
             JSONObject rating = ratingArray.getJSONObject(i);
-            ratings.add(new Rating(rating.getString("Source"), rating . getString("Value")));
+            ratings.add(new Rating(rating.getString("Source"), rating.getString("Value")));
         }
+
         MovieType type = MovieType.fromString(rootObject.getString("Type"));
-
-        String movieID = rootObject.getString("imdbID");
-
 
         return new Movie(movieID, title, year,releaseDate, runtime, genres, director, writer, actors, plot, country, language, poster, ratings, type);
 

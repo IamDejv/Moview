@@ -7,26 +7,84 @@ import cz.uhk.fim.pro2.moview.utils.ImageHandeler;
 import cz.uhk.fim.pro2.moview.utils.MovieParser;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainFrame extends JFrame {
+    private JCheckBox cbRok = new JCheckBox("Vyhledat podle roku");
+    private JLabel lblrok = new JLabel("Rok");
+    private JTextField tfRok = new JTextField();
+
+
 
     public MainFrame() throws HeadlessException {
         initFrame();
-        initTestData();
+        if(!cbRok.isSelected()){
+            lblrok.setVisible(false);
+            tfRok.setVisible(false);
+
+        } else {
+            lblrok.setVisible(true);
+            tfRok.setVisible(true);
+        }
+        //initTestData();
     }
 
     private void initFrame () {
         setTitle("MovieW");
         Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize((int)(screensize.width * 0.75), (int)(screensize.height * 0.75));
+
+
+        JPanel input = new JPanel();
+
+        GroupLayout gl = new GroupLayout(input);
+
+        gl.setAutoCreateGaps(true);
+        gl.setAutoCreateContainerGaps(true);
+
+        //TextFields
+        JTextField tfNazev = new JTextField();
+        tfNazev.setSize(new Dimension(300,20));
+        tfRok.setPreferredSize(new Dimension(20, 20));
+        //Labels
+        JLabel lblNazev = new JLabel("Název");
+        //Buttons
+        JButton btnVyhledat = new JButton("Vyhledat");
+        //CheckBoxes
+        //JCheckBox cbRok = new JCheckBox("Vyhledat podle roku");
+
+        gl.setHorizontalGroup(gl.createSequentialGroup()
+                .addGroup(gl.createParallelGroup()
+                        .addComponent(lblNazev)
+                        .addComponent(cbRok)
+                )
+                .addComponent(tfNazev)
+                .addComponent(lblrok)
+                .addComponent(tfRok)
+                .addComponent(btnVyhledat)
+        );
+        gl.setVerticalGroup(gl.createSequentialGroup()
+                .addGroup(gl.createParallelGroup()
+                .addComponent(lblNazev)
+                .addComponent(tfNazev)
+                .addComponent(lblrok)
+                .addComponent(tfRok)
+                .addComponent(btnVyhledat)
+                )
+                .addComponent(cbRok)
+
+        );
+
+        input.setLayout(gl);
+
+        setSize((int)(screensize.width * 0.5), (int)(screensize.height * 0.5));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
         setResizable(false);
+        this.add(input, BorderLayout.NORTH);
     }
 
     private void initTestData(){

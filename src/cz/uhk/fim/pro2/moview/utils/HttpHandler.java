@@ -11,6 +11,20 @@ public class HttpHandler {
     private static final String API_KEY = "4188fcac";
     private static final String API_URL = String.format("http://www.omdbapi.com/?apikey=%s", API_KEY);
 
+    public static String searchForMovies(String query) {
+        String url = String.format("%s&s=%s", API_URL, query).replaceAll(" ", "+");
+        String jsonResponse = getHttpResult(url);
+        System.out.println(jsonResponse);
+        return jsonResponse;
+    }
+
+    public static String getDetailByID(String id) {
+        String url = String.format("%s&i=%s", API_URL, id);
+        String jsonResponse = getHttpResult(url);
+        System.out.println(jsonResponse);
+        return jsonResponse;
+    }
+
     private static String getHttpResult(String resourceUrl) {
         String result = "";
 
@@ -33,19 +47,5 @@ public class HttpHandler {
             e.printStackTrace();
         }
         return result;
-    }
-
-    public static String searchForMovies(String query) {
-        String url = String.format("%s&s=%s", API_URL, query).replaceAll(" ", "+");
-        String jsonResponse = getHttpResult(url);
-        System.out.println(jsonResponse);
-        return jsonResponse;
-    }
-
-    public static String getDetailByID(String id) {
-        String url = String.format("%s&i=%s", API_URL, id);
-        String jsonResponse = getHttpResult(url);
-        System.out.println(jsonResponse);
-        return jsonResponse;
     }
 }
