@@ -5,86 +5,147 @@ import cz.uhk.fim.pro2.moview.utils.DataHandler;
 import cz.uhk.fim.pro2.moview.utils.HttpHandler;
 import cz.uhk.fim.pro2.moview.utils.ImageHandeler;
 import cz.uhk.fim.pro2.moview.utils.MovieParser;
+import sun.awt.AWTAccessor;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainFrame extends JFrame {
+    //private BufferedImage image = (BufferedImage) m.getPoster();
     private JCheckBox cbRok = new JCheckBox("Vyhledat podle roku");
-    private JLabel lblrok = new JLabel("Rok");
+    private JLabel lblrok = new JLabel("Rok: ");
+    private JLabel lblNazev = new JLabel("Název: ");
+    private JLabel lblPoster = new JLabel("Image........................................................................................");
+    private JLabel lblNazevFilmu = new JLabel("Název");
+    private JLabel lblRokFilmu = new JLabel("Rok");
+    private JLabel lblTyp = new JLabel("Typ");
     private JTextField tfRok = new JTextField();
-
-
+    private JTextField tfNazev = new JTextField();
+    private JButton btnVyhledat = new JButton("Vyhledat");
+    private JButton btnPridat = new JButton("Přidat do seznamu");
+    private JButton btnPreskocit = new JButton("Přeskočit");
 
     public MainFrame() throws HeadlessException {
         initFrame();
-        if(!cbRok.isSelected()){
-            lblrok.setVisible(false);
-            tfRok.setVisible(false);
+        //initGui();
 
-        } else {
-            lblrok.setVisible(true);
-            tfRok.setVisible(true);
-        }
         //initTestData();
     }
 
     private void initFrame () {
         setTitle("MovieW");
         Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-
-
-        JPanel input = new JPanel();
-
-        GroupLayout gl = new GroupLayout(input);
-
-        gl.setAutoCreateGaps(true);
-        gl.setAutoCreateContainerGaps(true);
-
-        //TextFields
-        JTextField tfNazev = new JTextField();
-        tfNazev.setSize(new Dimension(300,20));
-        tfRok.setPreferredSize(new Dimension(20, 20));
-        //Labels
-        JLabel lblNazev = new JLabel("Název");
-        //Buttons
-        JButton btnVyhledat = new JButton("Vyhledat");
-        //CheckBoxes
-        //JCheckBox cbRok = new JCheckBox("Vyhledat podle roku");
-
-        gl.setHorizontalGroup(gl.createSequentialGroup()
-                .addGroup(gl.createParallelGroup()
-                        .addComponent(lblNazev)
-                        .addComponent(cbRok)
-                )
-                .addComponent(tfNazev)
-                .addComponent(lblrok)
-                .addComponent(tfRok)
-                .addComponent(btnVyhledat)
-        );
-        gl.setVerticalGroup(gl.createSequentialGroup()
-                .addGroup(gl.createParallelGroup()
-                .addComponent(lblNazev)
-                .addComponent(tfNazev)
-                .addComponent(lblrok)
-                .addComponent(tfRok)
-                .addComponent(btnVyhledat)
-                )
-                .addComponent(cbRok)
-
-        );
-
-        input.setLayout(gl);
-
-        setSize((int)(screensize.width * 0.5), (int)(screensize.height * 0.5));
+        setSize(800,500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
         setResizable(false);
+        setLayout(null);
+
+        lblrok.setVisible(false);
+        tfRok.setVisible(false);
+
+        lblNazev.setBounds(10,10,50,25);
+        tfNazev.setBounds(60, 10 , 580, 25);
+        lblrok.setBounds(510,10,50,25);
+        tfRok.setBounds(570, 10, 100,25);
+        btnVyhledat.setBounds(680, 10 , 100, 25);
+        cbRok.setBounds(60, 45, 150,25);
+        lblPoster.setBounds(10,100,190,350);
+        lblNazevFilmu.setBounds(250,100,100,25);
+        lblRokFilmu.setBounds(250,135,100,25);
+        lblTyp.setBounds(250,170, 100, 25);
+        btnPridat.setBounds(520,170,160,25);
+        btnPreskocit.setBounds(520,230,160,25);
+
+        cbRok.addActionListener(e->{
+            if(cbRok.isSelected()){
+                tfRok.setVisible(true);
+                lblrok.setVisible(true);
+                tfNazev.setBounds(60,10,430,25);
+            } else {
+                tfRok.setVisible(false);
+                lblrok.setVisible(false);
+                tfNazev.setBounds(60,10,580,25);
+                tfRok.setText("");
+            }
+        });
+
+        add(lblNazev);
+        add(tfNazev);
+        add(lblrok);
+        add(tfRok);
+        add(btnVyhledat);
+        add(cbRok);
+        add(lblPoster);
+        add(lblNazevFilmu);
+        add(lblRokFilmu);
+        add(lblTyp);
+        add(btnPridat);
+        add(btnPreskocit);
+    }
+
+    private void initGui(){
+        setTitle("MovieW");
+        Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(new Dimension(800,600));
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setVisible(true);
+        setResizable(false);
+        setLocationRelativeTo(null);
+        lblrok.setVisible(false);
+        tfRok.setVisible(false);
+        JPanel input = new JPanel();
+        JPanel poster = new JPanel();
+        this.add(poster, BorderLayout.CENTER);
         this.add(input, BorderLayout.NORTH);
+        Container pane = input.getRootPane();
+        pane.setLayout(new GridBagLayout());
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(5,0,5,5);
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.gridx = 0;
+        g.gridy = 0;
+        pane.add(lblNazev, g);
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.gridx = 1;
+        g.gridy = 0;
+        g.ipadx = 10;
+        pane.add(tfNazev, g);
+        tfNazev.setPreferredSize(new Dimension(200,25));
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.gridx = 2;
+        g.gridy = 0;
+        g.ipadx = 10;
+        pane.add(lblrok, g);
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.gridx = 3;
+        g.gridy = 0;
+        g.ipadx = 10;
+        pane.add(tfRok, g);
+        tfRok.setPreferredSize(new Dimension(75,25));
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.gridx = 1;
+        g.gridy = 1;
+        pane.add(cbRok, g);
+        g.fill = GridBagConstraints.VERTICAL;
+        g.gridx = 4;
+        g.gridy = 0;
+        pane.add(btnVyhledat, g);
+
+        cbRok.addActionListener(e->{
+            if(cbRok.isSelected()){
+                tfRok.setVisible(true);
+                lblrok.setVisible(true);
+            } else {
+                tfRok.setVisible(false);
+                lblrok.setVisible(false);
+            }
+        });
     }
 
     private void initTestData(){
