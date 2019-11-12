@@ -26,14 +26,26 @@ public class MainFrame extends JFrame {
     private JTextField tfRok = new JTextField();
     private JTextField tfNazev = new JTextField();
     private JButton btnVyhledat = new JButton("Vyhledat");
+    private JPanel rootPanel;
     private JButton btnPridat = new JButton("Přidat do seznamu");
     private JButton btnPreskocit = new JButton("Přeskočit");
 
     public MainFrame() throws HeadlessException {
         initFrame();
         //initGui();
-
+        //initUI();
         //initTestData();
+    }
+
+    private void initUI(){
+        setContentPane(new UI().getRootPanel());
+        setTitle("Moview");
+        setSize(800,600);
+        setLocationRelativeTo(null);
+        setVisible(true);
+        setResizable(false);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
     }
 
     private void initFrame () {
@@ -87,6 +99,14 @@ public class MainFrame extends JFrame {
         add(lblTyp);
         add(btnPridat);
         add(btnPreskocit);
+        btnVyhledat.addActionListener(e->{
+            String nazev = tfNazev.getText();
+            String rok = tfRok.getText();
+            nazev = nazev.toLowerCase();
+            nazev = nazev.replace(" ","+");
+            System.out.println(nazev);
+            //MovieParser.parseMovieSearch(nazev);
+        });
     }
 
     private void initGui(){
