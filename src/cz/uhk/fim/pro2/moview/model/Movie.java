@@ -7,7 +7,7 @@ import java.util.List;
 public class Movie {
 
     private String title;
-    private int year;
+    private String year;
     private Date releaseDate;
     private int runtime;
     private List<Genre> genreList;
@@ -22,7 +22,7 @@ public class Movie {
     private MovieType type;
     private String movieID;
 
-    public Movie( String movieID, String title, int year, Date releaseDate, int runtime, List<Genre> genreList, String director, String writer, List<Actor> actors, String plot, String country, String language, Image poster, List<Rating> ratings, MovieType type) {
+    public Movie( String movieID, String title, String year, Date releaseDate, int runtime, List<Genre> genreList, String director, String writer, List<Actor> actors, String plot, String country, String language, Image poster, List<Rating> ratings, MovieType type) {
         this.title = title;
         this.year = year;
         this.releaseDate = releaseDate;
@@ -60,11 +60,11 @@ public class Movie {
         this.title = title;
     }
 
-    public int getYear() {
+    public String getYear() {
         return year;
     }
 
-    public void setYear(int year) {
+    public void setYear(String year) {
         this.year = year;
     }
 

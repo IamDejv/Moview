@@ -1,34 +1,35 @@
 package cz.uhk.fim.pro2.moview.gui;
 
 import cz.uhk.fim.pro2.moview.model.*;
-import cz.uhk.fim.pro2.moview.utils.DataHandler;
-import cz.uhk.fim.pro2.moview.utils.HttpHandler;
-import cz.uhk.fim.pro2.moview.utils.ImageHandeler;
-import cz.uhk.fim.pro2.moview.utils.MovieParser;
+import cz.uhk.fim.pro2.moview.utils.*;
 import sun.awt.AWTAccessor;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainFrame extends JFrame {
     //private BufferedImage image = (BufferedImage) m.getPoster();
     private JCheckBox cbRok = new JCheckBox("Vyhledat podle roku");
-    private JLabel lblrok = new JLabel("Rok: ");
+    private JLabel lblRok = new JLabel("Rok: ");
     private JLabel lblNazev = new JLabel("Název: ");
-    private JLabel lblPoster = new JLabel("Image........................................................................................");
-    private JLabel lblNazevFilmu = new JLabel("Název");
-    private JLabel lblRokFilmu = new JLabel("Rok");
-    private JLabel lblTyp = new JLabel("Typ");
+    private JLabel lblPoster = new JLabel();
+    private JLabel lblNazevFilmu = new JLabel();
+    private JLabel lblRokFilmu = new JLabel();
+    private JLabel lblTyp = new JLabel();
     private JTextField tfRok = new JTextField();
     private JTextField tfNazev = new JTextField();
     private JButton btnVyhledat = new JButton("Vyhledat");
     private JPanel rootPanel;
-    private JButton btnPridat = new JButton("Přidat do seznamu");
-    private JButton btnPreskocit = new JButton("Přeskočit");
+    private JButton btnAdd = new JButton("Přidat do seznamu");
+    private JButton btnSkip = new JButton("Přeskočit");
+    private List<Movie> movies;
 
     public MainFrame() throws HeadlessException {
         initFrame();
@@ -58,30 +59,30 @@ public class MainFrame extends JFrame {
         setResizable(false);
         setLayout(null);
 
-        lblrok.setVisible(false);
+        lblRok.setVisible(false);
         tfRok.setVisible(false);
 
         lblNazev.setBounds(10,10,50,25);
         tfNazev.setBounds(60, 10 , 580, 25);
-        lblrok.setBounds(510,10,50,25);
+        lblRok.setBounds(510,10,50,25);
         tfRok.setBounds(570, 10, 100,25);
         btnVyhledat.setBounds(680, 10 , 100, 25);
         cbRok.setBounds(60, 45, 150,25);
-        lblPoster.setBounds(10,100,190,350);
-        lblNazevFilmu.setBounds(250,100,100,25);
-        lblRokFilmu.setBounds(250,135,100,25);
-        lblTyp.setBounds(250,170, 100, 25);
-        btnPridat.setBounds(520,170,160,25);
-        btnPreskocit.setBounds(520,230,160,25);
+        lblPoster.setBounds(10,100,300,350);
+        lblNazevFilmu.setBounds(350,100,200,25);
+        lblRokFilmu.setBounds(350,135,200,25);
+        lblTyp.setBounds(350,170, 200, 25);
+        btnAdd.setBounds(580,170,160,25);
+        btnSkip.setBounds(580,230,160,25);
 
         cbRok.addActionListener(e->{
             if(cbRok.isSelected()){
                 tfRok.setVisible(true);
-                lblrok.setVisible(true);
+                lblRok.setVisible(true);
                 tfNazev.setBounds(60,10,430,25);
             } else {
                 tfRok.setVisible(false);
-                lblrok.setVisible(false);
+                lblRok.setVisible(false);
                 tfNazev.setBounds(60,10,580,25);
                 tfRok.setText("");
             }
@@ -89,7 +90,7 @@ public class MainFrame extends JFrame {
 
         add(lblNazev);
         add(tfNazev);
-        add(lblrok);
+        add(lblRok);
         add(tfRok);
         add(btnVyhledat);
         add(cbRok);
@@ -97,16 +98,82 @@ public class MainFrame extends JFrame {
         add(lblNazevFilmu);
         add(lblRokFilmu);
         add(lblTyp);
-        add(btnPridat);
-        add(btnPreskocit);
+        add(btnAdd);
+        add(btnSkip);
         btnVyhledat.addActionListener(e->{
             String nazev = tfNazev.getText();
             String rok = tfRok.getText();
             nazev = nazev.toLowerCase();
             nazev = nazev.replace(" ","+");
             System.out.println(nazev);
-            //MovieParser.parseMovieSearch(nazev);
+            String searchTitle = tfNazev.getText().trim();
+            if(!searchTitle.isEmpty()){
+                movies = MovieParser.parseMovieSearch(searchTitle);
+                setDataToUi();
+            }
         });
+
+        btnAdd.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(!movies.isEmpty()){
+                    addMovie(movies.get(0));
+                }
+                setDataToUi();
+            }
+        });
+
+
+        btnSkip.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(!movies.isEmpty()){
+                    skipMovie(movies.get(0));
+                }
+                setDataToUi();
+            }
+        });
+    }
+
+    private void setDataToUi(){
+        if(!movies.isEmpty()){
+            Movie m = movies.get(0);
+            lblNazevFilmu.setText(m.getTitle());
+            lblRokFilmu.setText(m.getYear());
+            if(true){
+                lblTyp.setText(m.getType().getType());
+            }
+            if(!m.getPoster().equals(null)){
+                lblPoster.setIcon(new ImageIcon(m.getPoster()));
+            }
+        } else {
+            //lblNazevFilmu.setVisible(false);
+            //lblRokFilmu.setVisible(false);
+            //lblTyp.setVisible(false);
+            //lblPoster.setVisible(false);
+            setVisibility(false, lblNazevFilmu, lblRokFilmu, lblTyp, lblPoster);
+        }
+    }
+
+    private void addMovie(Movie m){
+        System.out.println(m);
+        try {
+            FileUtils.saveStringToFile(m.getMovieID());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        movies.remove(m);
+    }
+
+    private void skipMovie(Movie m){
+        System.out.println(m);
+        movies.remove(m);
+
+    }
+    private void setVisibility(boolean shouldBeVisible, JComponent... component){
+        for (JComponent c : component){
+            c.setVisible(shouldBeVisible);
+        }
     }
 
     private void initGui(){
@@ -117,7 +184,7 @@ public class MainFrame extends JFrame {
         setVisible(true);
         setResizable(false);
         setLocationRelativeTo(null);
-        lblrok.setVisible(false);
+        lblRok.setVisible(false);
         tfRok.setVisible(false);
         JPanel input = new JPanel();
         JPanel poster = new JPanel();
@@ -141,7 +208,7 @@ public class MainFrame extends JFrame {
         g.gridx = 2;
         g.gridy = 0;
         g.ipadx = 10;
-        pane.add(lblrok, g);
+        pane.add(lblRok, g);
         g.fill = GridBagConstraints.HORIZONTAL;
         g.gridx = 3;
         g.gridy = 0;
@@ -160,10 +227,10 @@ public class MainFrame extends JFrame {
         cbRok.addActionListener(e->{
             if(cbRok.isSelected()){
                 tfRok.setVisible(true);
-                lblrok.setVisible(true);
+                lblRok.setVisible(true);
             } else {
                 tfRok.setVisible(false);
-                lblrok.setVisible(false);
+                lblRok.setVisible(false);
             }
         });
     }
@@ -200,7 +267,7 @@ public class MainFrame extends JFrame {
         Movie movie = new Movie(
                 "sd456",
                 "Star Wars - ep. 4",
-                1977,
+                "1977",
                 DataHandler.getDateFromString("25 May 1977"),
                 121,
                 genres,
