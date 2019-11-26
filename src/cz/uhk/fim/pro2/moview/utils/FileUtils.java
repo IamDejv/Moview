@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class FileUtils {
     private static final String FAVORITE_MOVIES = "movies.txt";
@@ -15,5 +17,9 @@ public class FileUtils {
         bufferedWriter.write(String.format("%s;", data));
         bufferedWriter.close();
         writer.close();
+    }
+
+    public static String readStringFromFile(String filename) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(filename)));
     }
 }

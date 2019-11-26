@@ -7,6 +7,8 @@ import sun.awt.AWTAccessor;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -14,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements ActionListener {
     //private BufferedImage image = (BufferedImage) m.getPoster();
     private JCheckBox cbRok = new JCheckBox("Vyhledat podle roku");
     private JLabel lblRok = new JLabel("Rok: ");
@@ -30,6 +32,7 @@ public class MainFrame extends JFrame {
     private JButton btnAdd = new JButton("Přidat do seznamu");
     private JButton btnSkip = new JButton("Přeskočit");
     private List<Movie> movies;
+    private JMenuItem moviesItem;
 
     public MainFrame() throws HeadlessException {
         initFrame();
@@ -61,6 +64,39 @@ public class MainFrame extends JFrame {
 
         lblRok.setVisible(false);
         tfRok.setVisible(false);
+        JMenuBar  menuBar = new JMenuBar();
+        JMenu mainMenu, moviesSubmenu, genresMenu, yearsMenu;
+        mainMenu = new JMenu("Menu");
+        moviesItem = new JMenuItem("Seznam filmů");
+        moviesItem.addActionListener(this);
+        moviesSubmenu = new JMenu("Seznam filmů podle");
+        genresMenu = new JMenu("žánrů");
+        yearsMenu = new JMenu("roku");
+
+        String [] genres = {"Akční", "Sci-Fi", "Horor", "Drama"};
+        String [] years = {"1977", " 1985", "1990", "1993", "2000", "2005", "2017", "2020"};
+
+        for(String s : genres){
+            JMenuItem item = new JMenuItem(s);
+            item.addActionListener(this);
+            genresMenu.add(item);
+        }
+
+        for(String s : years){
+            JMenuItem item = new JMenuItem(s);
+            item.addActionListener(this);
+            yearsMenu.add(item);
+        }
+
+        mainMenu.add(moviesItem);
+        mainMenu.add(moviesSubmenu);
+
+        moviesSubmenu.add(genresMenu);
+        moviesSubmenu.add(yearsMenu);
+
+        menuBar.add(mainMenu);
+
+        setJMenuBar(menuBar);
 
         lblNazev.setBounds(10,10,50,25);
         tfNazev.setBounds(60, 10 , 580, 25);
@@ -159,6 +195,7 @@ public class MainFrame extends JFrame {
         System.out.println(m);
         try {
             FileUtils.saveStringToFile(m.getMovieID());
+            System.out.println(FileUtils.readStringFromFile("movies.txt"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -282,5 +319,25 @@ public class MainFrame extends JFrame {
                 MovieType.MOVIE
         );
         System.out.println(movie);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        System.out.println("On Action Performed");
+        if(e.getSource() == moviesItem){
+            try {
+                new MovieListFrame("Seznam filmů");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            JMenuItem item = (JMenuItem) e.getSource();
+
+            try {
+                new MovieListFrame(item.getText());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 }
