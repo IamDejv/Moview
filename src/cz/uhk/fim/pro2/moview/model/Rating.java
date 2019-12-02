@@ -10,6 +10,14 @@ public class Rating {
         this.value = value;
     }
 
+    public String getSource() {
+        return source;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
     public void setSource(String source) {
         this.source = source;
     }
