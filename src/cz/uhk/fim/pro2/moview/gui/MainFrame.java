@@ -32,7 +32,9 @@ public class MainFrame extends JFrame implements ActionListener {
     private JButton btnAdd = new JButton("Přidat do seznamu");
     private JButton btnSkip = new JButton("Přeskočit");
     private List<Movie> movies;
-    private JMenuItem moviesItem;
+
+    private List<MenuItem> menuItems;
+    private JMenuItem menuItem;
 
     public MainFrame() throws HeadlessException {
         initFrame();
@@ -62,6 +64,12 @@ public class MainFrame extends JFrame implements ActionListener {
         setResizable(false);
         setLayout(null);
 
+        menuItems = new ArrayList<>();
+
+        JMenuItem moviesItem = new JMenuItem("Seznam filmů");
+        moviesItem.addActionListener(this);
+        menuItems.add(new MenuItem("Seznam filmů", null, null, moviesItem));
+
         lblRok.setVisible(false);
         tfRok.setVisible(false);
         JMenuBar  menuBar = new JMenuBar();
@@ -79,12 +87,14 @@ public class MainFrame extends JFrame implements ActionListener {
         for(String s : genres){
             JMenuItem item = new JMenuItem(s);
             item.addActionListener(this);
+            menuItems.add(new MenuItem(String.format("Seznam filmů podle: %s", s), "genres", s, item));
             genresMenu.add(item);
         }
 
         for(String s : years){
             JMenuItem item = new JMenuItem(s);
             item.addActionListener(this);
+            menuItems.add(new MenuItem(String.format("Seznam filmů podle: %s", s), "years", s, item));
             yearsMenu.add(item);
         }
 
@@ -194,8 +204,8 @@ public class MainFrame extends JFrame implements ActionListener {
     private void addMovie(Movie m){
         System.out.println(m);
         try {
-            FileUtils.saveStringToFile(m.getMovieID());
-            System.out.println(FileUtils.readStringFromFile("movies.txt"));
+            FileUtils.saveStringToFile(m.getMovieID(), FileUtils.TYPE_ALL);
+            System.out.println(FileUtils.readStringFromFile(FileUtils.TYPE_ALL));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -324,17 +334,19 @@ public class MainFrame extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         System.out.println("On Action Performed");
-        if(e.getSource() == moviesItem){
-            try {
-                new MovieListFrame("Seznam filmů");
-            } catch (IOException ex) {
-                ex.printStackTrace();
+        JMenuItem item = (JMenuItem) e.getSource();
+        for(MenuItem menuItem : menuItems){
+            if(menuItem.getItem().equals(item)){
+                try {
+                    new MovieListFrame(menuItem);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
-        } else {
-            JMenuItem item = (JMenuItem) e.getSource();
-
+        }
+        if(((JMenuItem) e.getSource()).getText().equals("Seznam filmů")){
             try {
-                new MovieListFrame(item.getText());
+                new MovieListFrame(menuItems.get(0));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
