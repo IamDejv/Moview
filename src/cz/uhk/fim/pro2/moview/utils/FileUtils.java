@@ -18,23 +18,24 @@ public class FileUtils {
     public static final int TYPE_YEARS = 2;
 
     public static String composeData(HashMap<String, String> dataMap){
-        return "";
+        StringBuilder sb = new StringBuilder();
+        for (String cat : dataMap.keySet()) {
+            sb.append(String.format("%s:%s%n", cat, dataMap.get(cat)));
+        }
+        return sb.toString();
     }
 
     public static HashMap<String, String> decomposeData(String data){
         HashMap<String, String> dataMap = new HashMap<>();
-        String [] withoutN = data.split("\n");
-        String [] raw = new String[withoutN.length];
-        for (int i = 0 ; i < withoutN.length; i++) {
-            raw[i] = withoutN[i];
+        String[] lines = data.split("\n");
+        try {
+            for(String line : lines) {
+                String[] lineValues = line.split(":");
+                dataMap.put(lineValues[0], lineValues[1]);
+            }
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
-        //Skoncil jsem u raw data kde jsou data v poli a staci je rozlousknout na pul a jaistit dostani do mapy
-
-        String [] genres = data.split("\\:");
-
-
-
-
 
 
         return dataMap;
@@ -53,9 +54,9 @@ public class FileUtils {
             break;
             default: file = new File(FAVORITE_MOVIES);
         }
-        FileWriter writer = new FileWriter(file, true);
+        FileWriter writer = new FileWriter(file, type ==TYPE_ALL);
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
-        bufferedWriter.write(String.format("%s;", data));
+        bufferedWriter.write(String.format("%s;", data, type==TYPE_ALL ? ";" : "").replaceAll(" ", ""));
         bufferedWriter.close();
         writer.close();
     }

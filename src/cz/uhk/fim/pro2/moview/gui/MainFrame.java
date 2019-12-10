@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainFrame extends JFrame implements ActionListener {
@@ -32,6 +33,9 @@ public class MainFrame extends JFrame implements ActionListener {
     private JButton btnAdd = new JButton("Přidat do seznamu");
     private JButton btnSkip = new JButton("Přeskočit");
     private List<Movie> movies;
+    private HashMap<String, String> genresMap;
+    private HashMap<String, String> yearsMap;
+    private JMenu mainMenu, moviesSubmenu, genresMenu, yearsMenu;
 
     private List<MenuItem> menuItems;
     private JMenuItem menuItem;
@@ -63,17 +67,29 @@ public class MainFrame extends JFrame implements ActionListener {
         setVisible(true);
         setResizable(false);
         setLayout(null);
+        try {
+            genresMap = FileUtils.decomposeData(FileUtils.readStringFromFile(FileUtils.TYPE_GENRES));
+            yearsMap = FileUtils.decomposeData(FileUtils.readStringFromFile(FileUtils.TYPE_YEARS));
+        } catch (IOException e){
+            genresMap = new HashMap<>();
+            yearsMap = new HashMap<>();
+        }
 
         menuItems = new ArrayList<>();
 
         JMenuItem moviesItem = new JMenuItem("Seznam filmů");
         moviesItem.addActionListener(this);
-        menuItems.add(new MenuItem("Seznam filmů", null, null, moviesItem));
+        try {
+            String movieList = FileUtils.readStringFromFile(FileUtils.TYPE_ALL);
+            menuItems.add(new MenuItem("Seznam filmů", null, movieList, moviesItem));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         lblRok.setVisible(false);
         tfRok.setVisible(false);
         JMenuBar  menuBar = new JMenuBar();
-        JMenu mainMenu, moviesSubmenu, genresMenu, yearsMenu;
         mainMenu = new JMenu("Menu");
         moviesItem = new JMenuItem("Seznam filmů");
         moviesItem.addActionListener(this);
@@ -81,20 +97,23 @@ public class MainFrame extends JFrame implements ActionListener {
         genresMenu = new JMenu("žánrů");
         yearsMenu = new JMenu("roku");
 
-        String [] genres = {"Akční", "Sci-Fi", "Horor", "Drama"};
-        String [] years = {"1977", " 1985", "1990", "1993", "2000", "2005", "2017", "2020"};
+       // String [] genres = {"Akční", "Sci-Fi", "Horor", "Drama"};
+       // String [] years = {"1977", " 1985", "1990", "1993", "2000", "2005", "2017", "2020"};
 
-        for(String s : genres){
+        for(String s : genresMap.keySet()){
             JMenuItem item = new JMenuItem(s);
             item.addActionListener(this);
-            menuItems.add(new MenuItem(String.format("Seznam filmů podle: %s", s), "genres", s, item));
+            menuItems.add(new MenuItem(String.format("Seznam filmů podle: %s", genresMap.get(s)),
+                    "genres",
+                    genresMap.get(s),
+                    item));
             genresMenu.add(item);
         }
 
-        for(String s : years){
+        for(String s : yearsMap.keySet()){
             JMenuItem item = new JMenuItem(s);
             item.addActionListener(this);
-            menuItems.add(new MenuItem(String.format("Seznam filmů podle: %s", s), "years", s, item));
+            menuItems.add(new MenuItem(String.format("Seznam filmů podle: %s", yearsMap.get(s)), "years", yearsMap.get(s), item));
             yearsMenu.add(item);
         }
 
@@ -192,11 +211,39 @@ public class MainFrame extends JFrame implements ActionListener {
             if(!m.getPoster().equals(null)){
                 lblPoster.setIcon(new ImageIcon(m.getPoster()));
             }
+            setVisibility(true, lblNazevFilmu, lblRokFilmu, lblTyp, lblPoster);
+            moviesSubmenu.remove(genresMenu);
+            moviesSubmenu.remove(yearsMenu);
+            try{
+                for(String s : genresMap.keySet()){
+                    JMenuItem item = new JMenuItem(s);
+                    item.addActionListener(this);
+                    menuItems.add(new MenuItem(
+                            String.format("Seznam filmů podle žánru: %s", genresMap.get(s)),
+                            "genres",
+                            genresMap.get(s),
+                            item
+                    ));
+                    genresMenu.add(item);
+                }
+
+                for(String s : yearsMap.keySet()){
+                    JMenuItem item = new JMenuItem(s);
+                    item.addActionListener(this);
+                    menuItems.add(new MenuItem(
+                            String.format("Seznam filmů podle roku: %s", yearsMap.get(s)),
+                            "years",
+                            yearsMap.get(s),
+                            item
+                    ));
+                    yearsMenu.add(item);
+                }
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+
+
         } else {
-            //lblNazevFilmu.setVisible(false);
-            //lblRokFilmu.setVisible(false);
-            //lblTyp.setVisible(false);
-            //lblPoster.setVisible(false);
             setVisibility(false, lblNazevFilmu, lblRokFilmu, lblTyp, lblPoster);
         }
     }
@@ -204,7 +251,24 @@ public class MainFrame extends JFrame implements ActionListener {
     private void addMovie(Movie m){
         System.out.println(m);
         try {
+            Movie movie = MovieParser.parseMovieDetail(m.getMovieID());
+            for(Genre g : movie.getGenreList()){
+                if(genresMap.get(g.getName()) == null){
+                    genresMap.put(g.getName(), m.getMovieID());
+                }
+                genresMap.put(g.getName(), String.format("%s;%s", genresMap.get(g.getName()), m.getMovieID()));
+            }
+            if (yearsMap.get(m.getYear()) == null){
+                yearsMap.put(m.getYear(), m.getMovieID());
+            } else {
+                yearsMap.put(m.getYear(), String.format("%s;%s", yearsMap.get(m.getYear()), m.getMovieID()));
+
+            }
             FileUtils.saveStringToFile(m.getMovieID(), FileUtils.TYPE_ALL);
+            FileUtils.saveStringToFile(FileUtils.composeData(genresMap), FileUtils.TYPE_GENRES);
+            FileUtils.saveStringToFile(FileUtils.composeData(yearsMap), FileUtils.TYPE_YEARS);
+
+
             System.out.println(FileUtils.readStringFromFile(FileUtils.TYPE_ALL));
         } catch (IOException e) {
             e.printStackTrace();
@@ -333,7 +397,6 @@ public class MainFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("On Action Performed");
         JMenuItem item = (JMenuItem) e.getSource();
         for(MenuItem menuItem : menuItems){
             if(menuItem.getItem().equals(item)){
@@ -342,13 +405,6 @@ public class MainFrame extends JFrame implements ActionListener {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-            }
-        }
-        if(((JMenuItem) e.getSource()).getText().equals("Seznam filmů")){
-            try {
-                new MovieListFrame(menuItems.get(0));
-            } catch (IOException ex) {
-                ex.printStackTrace();
             }
         }
     }
